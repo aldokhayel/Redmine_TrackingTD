@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="<%= current_language %>">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<title><%= html_title %></title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="description" content="<%= Redmine::Info.app_name %>" />
+<meta name="keywords" content="issue,bug,tracker" />
+<%= csrf_meta_tag %>
+<%= favicon %>
+<%= stylesheet_link_tag 'jquery/jquery-ui-1.11.0', 'tribute-3.7.3', 'application', 'responsive', :media => 'all' %>
+<%= stylesheet_link_tag 'rtl', :media => 'all' if l(:direction) == 'rtl' %>
+<%= javascript_heads %>
+<%= heads_for_theme %>
+<%= call_hook :view_layouts_base_html_head %>
+<!-- page specific tags -->
+<%= yield :header_tags -%>
+
+<style>
+  /* REMOVE THIS, USE YOUR OWN  */
+/* html,body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, Sans-serif;
+  background-color: #070617;
+} */
+body {
+}
+/* STYLES SPECIFIC TO FOOTER  */
+.footer {
+  width: 100%;
+  position: relative;
+  margin-top:0px;
+  bottom: 0;
+  height: auto;
+  background-color: #F6F6F9;
+}
+.footer .col {
+  width: 600px;
+  height: auto;
+  float: left;
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  padding: 0px 20px 20px 20px;
+}
+.footer .col h1 {
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 17px;
+  padding: 20px 0px 5px 0px;
+  color: rgba(0,0,0);
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.250em;
+}
+.footer .col ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+.footer .col ul li {
+  color: #000000;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: bold;
+  padding: 5px 0px 5px 0px;
+  /* cursor: pointer; */
+  transition: .2s;
+  -webkit-transition: .2s;
+  -moz-transition: .2s;
+}
+.social ul li {
+  display: inline-block;
+  padding-right: 5px !important;
+}
+
+.footer .col ul li:hover {
+  color: #000000;
+  transition: .1s;
+  -webkit-transition: .1s;
+  -moz-transition: .1s;
+}
+.clearfix {
+  clear: both;
+}
+@media only screen and (min-width: 1280px) {
+  .contain {
+    width: 1200px;
+    margin: 0 auto;
+  }
+}
+@media only screen and (max-width: 1139px) {
+  .contain .social {
+    width: 1000px;
+    display: block;
+  }
+  .social h1 {
+    margin: 0px;
+  }
+}
+@media only screen and (max-width: 950px) {
+  .footer .col {
+    width: 33%;
+  }
+  .footer .col h1 {
+    font-size: 14px;
+  }
+  .footer .col ul li {
+    font-size: 13px;
+  }
+}
+@media only screen and (max-width: 500px) {
+    .footer .col {
+      width: 50%;
+    }
+    .footer .col h1 {
+      font-size: 14px;
+    }
+    .footer .col ul li {
+      font-size: 13px;
+    }
+}
+@media only screen and (max-width: 340px) {
+  .footer .col {
+    width: 100%;
+  }
+}
+  </style>
+  
+</head>
+<body class="<%= body_css_classes %>">
+<%= call_hook :view_layouts_base_body_top %>
+<div id="wrapper">
+
+<div class="flyout-menu js-flyout-menu">
+
+
+    <% if User.current.logged? || !Setting.login_required? %>
+        <div class="flyout-menu__search">
+            <%= form_tag({:controller => 'search', :action => 'index', :id => @project}, :method => :get ) do %>
+            <%= hidden_field_tag(controller.default_search_scope, 1, :id => nil) if controller.default_search_scope %>
+            <%= label_tag 'flyout-search', '&#9906;'.html_safe, :class => 'search-magnifier search-magnifier--flyout' %>
+            <%= text_field_tag 'q', @question, :id => 'flyout-search', :class => 'small js-search-input', :placeholder => l(:label_search) %>
+            <% end %>
+        </div>
+    <% end %>
+
+    <% if User.current.logged? %>
+        <div class="flyout-menu__avatar <% if !Setting.gravatar_enabled? %>flyout-menu__avatar--no-avatar<% end %>">
+            <% if Setting.gravatar_enabled? %>
+                <%= link_to(avatar(User.current, :size => "80"), user_path(User.current)) %>
+            <% end %>
+            <%= link_to_user(User.current, :format => :username) %>
+        </div>
+    <% end %>
+
+    <% if display_main_menu?(@project) %>
+        <h3><%= l(:label_project) %></h3>
+        <span class="js-project-menu"></span>
+    <% end %>
+
+    <h3><%= l(:label_general) %></h3>
+    <span class="js-general-menu"></span>
+
+    <span class="js-sidebar flyout-menu__sidebar"></span>
+
+    <h3><%= l(:label_profile) %></h3>
+    <span class="js-profile-menu"></span>
+
+</div>
+
+<div id="wrapper2">
+<div id="wrapper3">
+<div id="top-menu">
+    <div id="account">
+        <%= render_menu :account_menu -%>
+    </div>
+    <%= content_tag('div', "#{l(:label_logged_as)} #{link_to_user(User.current, :format => :username)}".html_safe, :id => 'loggedas') if User.current.logged? %>
+    <%= render_menu :top_menu if User.current.logged? || Setting.login_required? -%>
+</div>
+
+<div id="header">
+
+    <a href="#" class="mobile-toggle-button js-flyout-menu-toggle-button"></a>
+
+    <% if User.current.logged? || Setting.login_required? %>
+    <div id="quick-search">
+        <%= form_tag({:controller => 'search', :action => 'index', :id => @project}, :method => :get ) do %>
+        <%= hidden_field_tag 'scope', default_search_project_scope, :id => nil %>
+        <%= hidden_field_tag(controller.default_search_scope, 1, :id => nil) if controller.default_search_scope %>
+        <label for='q'>
+          <%= link_to l(:label_search), {:controller => 'search', :action => 'index', :id => @project, :scope => default_search_project_scope}, :accesskey => accesskey(:search) %>:
+        </label>
+        <%= text_field_tag 'q', @question, :size => 20, :class => 'small', :accesskey => accesskey(:quick_search),
+                            :data => {
+                                :auto_complete => true,
+                                :issues_url => auto_complete_issues_path(:q => '')
+                            } %>
+        <% end %>
+        <%= render_project_jump_box %>
+    </div>
+    <% end %>
+
+    <h1><%= page_header_title %></h1>
+
+    <% if display_main_menu?(@project) %>
+    <div id="main-menu" class="tabs">
+        <%= render_main_menu(@project) %>
+        <div class="tabs-buttons" style="display:none;">
+            <button class="tab-left" onclick="moveTabLeft(this); return false;"></button>
+            <button class="tab-right" onclick="moveTabRight(this); return false;"></button>
+        </div>
+    </div>
+    <% end %>
+</div>
+
+<div id="main" class="<%= sidebar_content? ? '' : 'nosidebar' %>">
+    <div id="sidebar">
+        <%= yield :sidebar %>
+        <%= view_layouts_base_sidebar_hook_response %>
+    </div>
+
+    <div id="content">
+        <%= render_flash_messages %>
+        <%= yield %>
+        <%= call_hook :view_layouts_base_content %>
+        <div style="clear:both;"></div>
+    </div>
+</div>
+<%# <div id="footer">
+    &copy; 2020 Abdulrahman    
+</div> %>
+</div>
+
+
+<!-- FOOTER START -->
+<div class="footer">
+  <div class="contain">
+  <div class="col">
+    <h1>About Us</h1>
+    <ul>
+      <li>It's a solution to track the technical debt in your project</li>
+    </ul>
+  </div>
+  <div class="col social">
+    <h1>Supervised by</h1>
+    <ul>
+      <li>Dr. Noureddine </li>
+    </ul>
+     <h1>Designed by</h1>
+     <ul>
+        <li>&copy;  Abdulrahman </li>
+    </ul>
+  </div>
+<div class="clearfix"></div>
+</div>
+</div>
+<!-- END OF FOOTER -->
+
+<div id="ajax-indicator" style="display:none;"><span><%= l(:label_loading) %></span></div>
+<div id="ajax-modal" style="display:none;"></div>
+
+</div>
+</div>
+<%= call_hook :view_layouts_base_body_bottom %>
+</body>
+</html>
